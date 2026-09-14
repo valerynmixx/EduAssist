@@ -1,0 +1,538 @@
+<!--
+  ============================================================
+  ARCHIVO: index.html
+  PARA QUE SIRVE:
+    Esta es la UNICA pagina HTML de toda la aplicacion.
+    Aqui viven el menu lateral y las 4 secciones del sistema:
+    Inicio, Estudiantes, Novedades y Acerca de.
+
+    Las secciones se muestran y se ocultan con JavaScript
+    (funcion mostrarSeccion en app.js), asi que la pagina
+    nunca se recarga: parece que cambiara de pagina, pero
+    en realidad todo esta en este mismo archivo.
+  ============================================================
+-->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <!-- Esta etiqueta hace que la pagina se vea bien en celulares y tablets -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EduAssist - Control de Estudiantes</title>
+
+  <!-- Aqui cargamos nuestra hoja de estilos (los colores, tamaños, etc.) -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ============================================================
+       PANTALLA DE LOGIN
+       Es lo primero que se ve. Hay dos roles: "profesor" (solo
+       puede registrar Permisos) y "acudiente" (solo puede
+       registrar Incapacidades y Citas Medicas). La logica esta
+       en js/auth.js.
+  ============================================================ -->
+  <div id="pantalla-login" class="pantalla-login">
+    <form id="form-login" class="formulario-login" onsubmit="manejarLogin(event)">
+      <img src="img/logo.png" alt="EduAssist" class="logo-login"> 
+      <h2>Iniciar sesion</h2>
+      <p class="texto-ayuda-login">Ingresa tu usuario y contraseña para continuar.</p>
+
+      <div class="fila-formulario">
+        <label for="input-usuario-login">Usuario:</label>
+        <input type="text" id="input-usuario-login" autocomplete="username">
+      </div>
+
+      <div class="fila-formulario">
+        <label for="input-clave-login">Contraseña:</label>
+        <input type="password" id="input-clave-login" autocomplete="current-password">
+      </div>
+
+      <p id="mensaje-error-login" class="mensaje-error-login oculto"></p>
+
+      <button type="submit" class="boton boton-principal">Entrar</button>
+    </form>
+  </div>
+
+  <!-- ============================================================
+       APLICACION PRINCIPAL
+       Queda oculta hasta que el login sea correcto (ver auth.js).
+  ============================================================ -->
+  <div id="app-principal" class="oculto">
+
+  <!-- ============================================================
+       ENCABEZADO
+       Es la barra superior con el nombre de la aplicacion y los
+       datos del usuario que inicio sesion.
+  ============================================================ -->
+  <header class="encabezado">
+    <h1>EduAssist - Control de Estudiantes</h1>
+    <div class="info-usuario">
+      <span id="texto-usuario-actual"></span>
+      <button type="button" class="boton boton-salir" onclick="cerrarSesion()">Cerrar sesion</button>
+    </div>
+  </header>
+
+  <!-- Contenedor principal: aqui van el menu lateral y el contenido -->
+  <div class="contenedor-principal">
+
+    <!-- ============================================================
+         MENU LATERAL
+         Cada enlace, al hacer click, llama a la funcion
+         mostrarSeccion() de app.js pasandole el nombre de la
+         seccion que se debe mostrar.
+    ============================================================ -->
+    <nav class="menu-lateral">
+      <ul>
+        <li id="item-menu-inicio">
+          <a id="enlace-inicio" class="enlace-menu activo" href="#" onclick="mostrarSeccion('inicio')">Inicio</a>
+        </li>
+        <li id="item-menu-estudiantes">
+          <a id="enlace-estudiantes" class="enlace-menu" href="#" onclick="mostrarSeccion('estudiantes')">Estudiantes</a>
+        </li>
+        <li id="item-menu-novedades">
+          <a id="enlace-novedades" class="enlace-menu" href="#" onclick="mostrarSeccion('novedades')">Novedades</a>
+        </li>
+        <li id="item-menu-dashboard">
+          <a id="enlace-dashboard" class="enlace-menu" href="#" onclick="mostrarSeccion('dashboard')">Dashboard</a>
+        </li>
+        <li id="item-menu-usuarios" class="oculto">
+          <a id="enlace-usuarios" class="enlace-menu" href="#" onclick="mostrarSeccion('usuarios')">Usuarios</a>
+        </li>
+        <li id="item-menu-acerca">
+          <a id="enlace-acerca" class="enlace-menu" href="#" onclick="mostrarSeccion('acerca')">Acerca de</a>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- ============================================================
+         CONTENIDO PRINCIPAL
+         Aqui van las 4 secciones de la aplicacion. Todas estan
+         escritas dentro del HTML, pero solo se ve una a la vez
+         gracias a la clase CSS "oculto".
+    ============================================================ -->
+    <main class="contenido">
+
+      <!-- ========================================================
+           SECCION: INICIO
+           Muestra tarjetas con los conteos principales del
+           sistema: estudiantes, permisos, incapacidades y
+           citas medicas.
+      ======================================================== -->
+      <section id="seccion-inicio" class="seccion">
+        <h2>Inicio</h2>
+        <p>Resumen general del sistema:</p>
+
+        <div class="tarjetas">
+          <div class="tarjeta">
+            <h3>Estudiantes</h3>
+            <p class="numero-tarjeta" id="contador-estudiantes">0</p>
+          </div>
+          <div class="tarjeta">
+            <h3>Permisos</h3>
+            <p class="numero-tarjeta" id="contador-permisos">0</p>
+          </div>
+          <div class="tarjeta">
+            <h3>Incapacidades</h3>
+            <p class="numero-tarjeta" id="contador-incapacidades">0</p>
+          </div>
+          <div class="tarjeta">
+            <h3>Citas Medicas</h3>
+            <p class="numero-tarjeta" id="contador-citas">0</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================================
+           SECCION: ESTUDIANTES
+           Contiene la barra de busqueda, los botones de orden,
+           el formulario para agregar/editar y la tabla con el
+           listado de estudiantes.
+      ======================================================== -->
+      <section id="seccion-estudiantes" class="seccion oculto">
+        <h2>Estudiantes</h2>
+
+        <!-- Barra de herramientas: buscar, ordenar y agregar -->
+        <div class="barra-herramientas">
+          <input type="text" id="input-buscar-estudiante" placeholder="Buscar por nombre o documento...">
+          <button class="boton" onclick="buscarEstudiante()">Buscar</button>
+          <button class="boton" onclick="ordenarEstudiantesPorNombre()">Ordenar por Nombre</button>
+          <button class="boton" onclick="ordenarEstudiantesPorGrado()">Ordenar por Grado</button>
+          <button class="boton boton-principal" onclick="mostrarFormularioNuevoEstudiante()">+ Nuevo Estudiante</button>
+        </div>
+
+        <!-- Formulario para agregar o editar un estudiante.
+             Empieza oculto y se muestra al presionar
+             "Nuevo Estudiante" o "Editar". -->
+        <form id="form-estudiante" class="formulario oculto" onsubmit="guardarEstudiante(event)">
+          <h3>Datos del Estudiante</h3>
+
+          <!-- Este campo oculto guarda el id del estudiante SOLO
+               cuando estamos editando. Si esta vacio, significa
+               que vamos a crear un estudiante nuevo. -->
+          <input type="hidden" id="input-id-estudiante">
+
+          <div class="fila-formulario">
+            <label for="input-documento">Documento:</label>
+            <input type="text" id="input-documento">
+          </div>
+
+          <div class="fila-formulario">
+            <label for="input-nombres">Nombres:</label>
+            <input type="text" id="input-nombres">
+          </div>
+
+          <div class="fila-formulario">
+            <label for="input-apellidos">Apellidos:</label>
+            <input type="text" id="input-apellidos">
+          </div>
+
+          <div class="fila-formulario">
+            <label for="input-fecha-nacimiento">Fecha de nacimiento:</label>
+            <input type="date" id="input-fecha-nacimiento">
+          </div>
+
+          <div class="fila-formulario">
+            <label for="select-genero">Genero:</label>
+            <select id="select-genero">
+              <option value="">Seleccione</option>
+              <option value="Femenino">Femenino</option>
+              <option value="Masculino">Masculino</option>
+            </select>
+          </div>
+
+          <div class="fila-formulario">
+            <label for="input-direccion">Direccion:</label>
+            <input type="text" id="input-direccion">
+          </div>
+
+          <div class="fila-formulario">
+            <label for="input-telefono">Telefono:</label>
+            <input type="text" id="input-telefono">
+          </div>
+
+          <div class="fila-formulario">
+            <label for="input-acudiente">Acudiente:</label>
+            <input type="text" id="input-acudiente">
+          </div>
+
+          <div class="fila-formulario">
+            <label for="input-telefono-acudiente">Telefono del acudiente:</label>
+            <input type="text" id="input-telefono-acudiente">
+          </div>
+
+          <div class="fila-formulario">
+            <label for="select-acudiente-estudiante">Cuenta de acudiente:</label>
+            <select id="select-acudiente-estudiante"></select>
+          </div>
+
+          <div class="fila-formulario">
+            <label for="select-grado-estudiante">Grado:</label>
+            <select id="select-grado-estudiante"></select>
+          </div>
+
+          <div class="fila-formulario">
+            <label for="select-estado-estudiante">Estado:</label>
+            <select id="select-estado-estudiante">
+              <option value="Activo">Activo</option>
+              <option value="Inactivo">Inactivo</option>
+            </select>
+          </div>
+
+          <div class="fila-botones">
+            <button type="submit" class="boton boton-principal" id="boton-guardar-estudiante">Guardar</button>
+            <button type="button" class="boton" onclick="cancelarFormularioEstudiante()">Cancelar</button>
+          </div>
+        </form>
+
+        <!-- Tabla con el listado de estudiantes -->
+        <table class="tabla">
+          <thead>
+            <tr>
+              <th>Documento</th>
+              <th>Nombre</th>
+              <th>Apellido</th>
+              <th>Grado</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="cuerpo-tabla-estudiantes">
+            <!-- Aqui se dibujan las filas con JavaScript -->
+          </tbody>
+        </table>
+      </section>
+
+      <!-- ========================================================
+           SECCION: NOVEDADES
+           Contiene los filtros, el formulario para agregar o
+           editar novedades y la tabla con el listado.
+      ======================================================== -->
+      <section id="seccion-novedades" class="seccion oculto">
+        <h2>Novedades</h2>
+
+        <!-- Filtros para buscar novedades -->
+        <div class="barra-herramientas">
+          <select id="select-filtro-estudiante" onchange="filtrarNovedades()"></select>
+          <select id="select-filtro-tipo" onchange="filtrarNovedades()"></select>
+          <select id="select-filtro-grado" onchange="filtrarNovedades()"></select>
+          <button class="boton" onclick="limpiarFiltrosNovedades()">Limpiar Filtros</button>
+          <button class="boton boton-principal" onclick="mostrarFormularioNuevaNovedad()">+ Nueva Novedad</button>
+        </div>
+
+        <!-- Formulario para agregar o editar una novedad -->
+        <form id="form-novedad" class="formulario oculto" onsubmit="guardarNovedad(event)">
+          <h3>Datos de la Novedad</h3>
+
+          <!-- Igual que en estudiantes: si este campo tiene un
+               valor, estamos editando una novedad existente. -->
+          <input type="hidden" id="input-id-novedad">
+
+          <div class="fila-formulario">
+            <label for="select-estudiante-novedad">Estudiante:</label>
+            <select id="select-estudiante-novedad"></select>
+          </div>
+
+          <div class="fila-formulario">
+            <label for="select-tipo-novedad">Tipo de novedad:</label>
+            <select id="select-tipo-novedad"></select>
+          </div>
+
+          <div class="fila-formulario">
+            <label for="input-fecha-inicio-novedad">Fecha inicio:</label>
+            <input type="date" id="input-fecha-inicio-novedad">
+          </div>
+
+          <div class="fila-formulario">
+            <label for="input-fecha-fin-novedad">Fecha fin:</label>
+            <input type="date" id="input-fecha-fin-novedad">
+          </div>
+
+          <div class="fila-formulario fila-formulario-ancha">
+            <label for="input-descripcion-novedad">Descripcion:</label>
+            <textarea id="input-descripcion-novedad" rows="5"></textarea>
+          </div>
+
+          <div class="fila-botones">
+            <button type="submit" class="boton boton-principal" id="boton-guardar-novedad">Guardar</button>
+            <button type="button" class="boton" onclick="cancelarFormularioNovedad()">Cancelar</button>
+          </div>
+        </form>
+
+        <!-- Tabla con el listado de novedades -->
+        <table class="tabla">
+          <thead>
+            <tr>
+              <th>Estudiante</th>
+              <th>Tipo</th>
+              <th>Fecha inicio</th>
+              <th>Fecha fin</th>
+              <th>Descripcion</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="cuerpo-tabla-novedades">
+            <!-- Aqui se dibujan las filas con JavaScript -->
+          </tbody>
+        </table>
+      </section>
+
+      <!-- ========================================================
+           SECCION: DASHBOARD
+           Muestra un resumen visual de toda la informacion:
+           tarjetas con totales y graficas de barras hechas con
+           JavaScript y CSS (sin librerias externas).
+      ======================================================== -->
+      <section id="seccion-dashboard" class="seccion oculto">
+        <h2>Dashboard</h2>
+        <p>Resumen visual de estudiantes y novedades:</p>
+
+        <div class="tarjetas">
+          <div class="tarjeta">
+            <h3>Total Estudiantes</h3>
+            <p class="numero-tarjeta" id="dashboard-total-estudiantes">0</p>
+          </div>
+          <div class="tarjeta">
+            <h3>Estudiantes Activos</h3>
+            <p class="numero-tarjeta" id="dashboard-estudiantes-activos">0</p>
+          </div>
+          <div class="tarjeta">
+            <h3>Total Novedades</h3>
+            <p class="numero-tarjeta" id="dashboard-total-novedades">0</p>
+          </div>
+          <div class="tarjeta">
+            <h3>Novedad mas comun</h3>
+            <p class="numero-tarjeta numero-tarjeta-texto" id="dashboard-tipo-comun">N/A</p>
+          </div>
+        </div>
+
+        <div class="graficas">
+
+          <div class="grafica-caja">
+            <h3>Estudiantes por grado</h3>
+            <div class="grafica-barras" id="grafica-estudiantes-grado"></div>
+          </div>
+
+          <div class="grafica-caja">
+            <h3>Novedades por tipo</h3>
+            <div class="leyenda" id="leyenda-novedades-tipo"></div>
+            <div class="grafica-barras" id="grafica-novedades-tipo"></div>
+          </div>
+
+          <div class="grafica-caja">
+            <h3>Estudiantes: activos vs inactivos</h3>
+            <div class="grafica-barras" id="grafica-estudiantes-estado"></div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ========================================================
+           SECCION: USUARIOS
+           Solo el admin ve esta seccion (el enlace del menu
+           queda oculto para los demas roles, ver auth.js).
+           Permite crear cuentas de profesor y acudiente.
+      ======================================================== -->
+      <section id="seccion-usuarios" class="seccion oculto">
+        <h2>Usuarios</h2>
+        <p>Crea y administra las cuentas de profesor y acudiente:</p>
+
+        <form id="form-usuario" class="formulario" onsubmit="crearUsuario(event)">
+          <h3>Nuevo Usuario</h3>
+
+          <div class="fila-formulario">
+            <label for="input-nombre-usuario">Nombre:</label>
+            <input type="text" id="input-nombre-usuario">
+          </div>
+
+          <div class="fila-formulario">
+            <label for="input-usuario-nuevo">Usuario:</label>
+            <input type="text" id="input-usuario-nuevo" autocomplete="off">
+          </div>
+
+          <div class="fila-formulario">
+            <label for="input-clave-nuevo">Contraseña:</label>
+            <input type="password" id="input-clave-nuevo" autocomplete="new-password">
+          </div>
+
+          <div class="fila-formulario">
+            <label for="select-rol-usuario">Rol:</label>
+            <select id="select-rol-usuario">
+              <option value="">Seleccione un rol</option>
+              <option value="profesor">Profesor</option>
+              <option value="acudiente">Acudiente</option>
+            </select>
+          </div>
+
+          <div class="fila-botones">
+            <button type="submit" class="boton boton-principal">Crear Usuario</button>
+          </div>
+        </form>
+
+        <!-- Tabla con el listado de usuarios -->
+        <table class="tabla">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Usuario</th>
+              <th>Rol</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="cuerpo-tabla-usuarios">
+            <!-- Aqui se dibujan las filas con JavaScript -->
+          </tbody>
+        </table>
+      </section>
+
+      <!-- ========================================================
+           SECCION: ACERCA DE
+           Explica brevemente que es la aplicacion y con que
+           tecnologias fue construida.
+      ======================================================== -->
+ <section id="seccion-acerca" class="seccion oculto">
+
+    <h2>Acerca de EduAssist</h2>
+
+    <div class="acerca-contenedor">
+
+        <div class="acerca-card">
+            <h3>📚 ¿Qué es EduAssist?</h3>
+
+            <p>
+                <strong>EduAssist</strong> es una plataforma diseñada para facilitar
+                el control y seguimiento de estudiantes dentro de una institución
+                educativa. Permite registrar información académica y gestionar
+                novedades como permisos, incapacidades y citas médicas de manera
+                organizada y segura.
+            </p>
+        </div>
+
+        <div class="acerca-card">
+            <h3>🎯 Objetivos</h3>
+
+            <ul>
+                <li>Administrar estudiantes.</li>
+                <li>Registrar novedades académicas.</li>
+                <li>Controlar permisos e incapacidades.</li>
+                <li>Generar estadísticas en tiempo real.</li>
+                <li>Facilitar el trabajo administrativo.</li>
+            </ul>
+        </div>
+
+        <div class="acerca-card">
+            <h3>⚙ Tecnologías utilizadas</h3>
+
+            <div class="tecnologias">
+
+                <div class="tech">HTML5</div>
+                <div class="tech">CSS3</div>
+                <div class="tech">JavaScript</div>
+                <div class="tech">Supabase</div>
+                <div class="tech">SQL</div>
+
+            </div>
+        </div>
+
+        <div class="acerca-card">
+            <h3>👨‍💻 Funcionalidades</h3>
+
+            <ul>
+                <li>✔ Inicio de sesión por roles.</li>
+                <li>✔ Gestión de estudiantes.</li>
+                <li>✔ Registro de novedades.</li>
+                <li>✔ Dashboard con estadísticas.</li>
+                <li>✔ Administración de usuarios.</li>
+            </ul>
+        </div>
+
+    </div>
+
+</section>
+  <!-- fin de #app-principal -->
+
+  <!-- ============================================================
+       LIBRERIA DE SUPABASE
+       Esta linea trae desde internet el codigo que crea el
+       objeto "window.supabase", el cual usamos en config.js
+       para conectarnos a nuestra base de datos.
+  ============================================================ -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- ============================================================
+       NUESTROS ARCHIVOS JAVASCRIPT
+       El orden importa: config.js debe ir primero porque crea
+       la variable "supabase" que todos los demas archivos usan.
+       app.js va de ultimo porque es el que arranca todo.
+  ============================================================ -->
+  <script src="js/config.js?v=2"></script>
+  <script src="js/auth.js?v=4"></script>
+  <script src="js/usuarios.js?v=2"></script>
+  <script src="js/grados.js?v=2"></script>
+  <script src="js/estudiantes.js?v=3"></script>
+  <script src="js/novedades.js?v=3"></script>
+  <script src="js/dashboard.js?v=1"></script>
+  <script src="js/app.js?v=5"></script>
+
+</body>
+</html>

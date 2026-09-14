@@ -1,0 +1,561 @@
+/* ============================================================
+   ARCHIVO: style.css
+   PARA QUE SIRVE:
+     Este archivo controla como SE VE la aplicacion: colores,
+     tamaños, espacios y como se acomodan los elementos en
+     pantalla (menu lateral, tarjetas, formularios, tabla).
+
+     Usamos solo 3 colores principales:
+       - Azul: para el menu, botones y titulos importantes
+       - Blanco: para el fondo de las tarjetas y el contenido
+       - Gris claro: para el fondo general de la pagina
+   ============================================================ */
+
+
+/* ------------------------------------------------------------
+   RESET BASICO
+   Quitamos los margenes y rellenos que el navegador pone por
+   defecto, para poder controlar nosotros mismos el espaciado.
+   ------------------------------------------------------------ */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box; /* el ancho de un elemento incluye su borde y relleno */
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+  background-color: #f1f3f5; /* gris claro de fondo para toda la pagina */
+  color: #212529; /* color del texto: gris oscuro, casi negro */
+}
+
+
+/* ------------------------------------------------------------
+   ENCABEZADO
+   Es la barra azul de arriba con el nombre de la aplicacion.
+   ------------------------------------------------------------ */
+.encabezado {
+  background-color: #07153d; /* azul */
+  color: white;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* Nombre del usuario y boton de cerrar sesion, a la derecha
+   del encabezado. */
+.info-usuario {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  font-size: 0.9rem;
+}
+
+.boton-salir {
+  background-color: rgba(255, 255, 255, 0.15);
+  color: white;
+}
+
+.boton-salir:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+
+/* ------------------------------------------------------------
+   PANTALLA DE LOGIN
+   Tarjeta centrada donde el usuario escribe su usuario y
+   contraseña antes de entrar a la aplicacion.
+   ------------------------------------------------------------ */
+.pantalla-login {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f1f3f5;
+  padding: 20px;
+}
+
+.formulario-login {
+  .logo-login{
+    width: 280px;
+    display: block;
+    margin: 0 auto 15px;
+    object-fit: contain;
+}
+  background-color: white;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 30px;
+  width: 100%;
+  max-width: 340px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.formulario-login h2 {
+  color: #07153d;
+}
+
+.formulario-login .fila-formulario {
+  width: 100%;
+}
+
+.texto-ayuda-login {
+  color: #868e96;
+  font-size: 0.9rem;
+  margin-top: -10px;
+}
+
+.mensaje-error-login {
+  color: #e03131;
+  font-size: 0.9rem;
+}
+
+
+/* ------------------------------------------------------------
+   CONTENEDOR PRINCIPAL
+   Ubica el menu lateral y el contenido uno al lado del otro,
+   usando "flexbox" (una forma facil de acomodar cajas en fila).
+   ------------------------------------------------------------ */
+.contenedor-principal {
+  display: flex;
+  min-height: calc(100vh - 60px); /* ocupa el resto del alto de la pantalla */
+}
+
+
+/* ------------------------------------------------------------
+   MENU LATERAL
+   Es la franja azul a la izquierda con los enlaces de
+   navegacion (Inicio, Estudiantes, Novedades, Acerca de).
+   ------------------------------------------------------------ */
+.menu-lateral {
+  width: 220px;
+  background-color: #07153d; /* azul */
+  padding: 20px 0;
+}
+
+.menu-lateral ul {
+  list-style: none; /* quitamos los puntos de la lista */
+}
+
+/* Cada enlace del menu lateral */
+.enlace-menu {
+  display: block;
+  color: rgb(251, 253, 253);
+  text-decoration: none;
+  padding: 12px 20px;
+  font-size: 1rem;
+}
+
+/* Cuando el mouse pasa por encima de un enlace del menu */
+.enlace-menu:hover {
+  background-color: #07153d; /* azul un poco mas oscuro */
+}
+
+/* Clase que se agrega al enlace de la seccion que esta activa */
+.enlace-menu.activo {
+  background-color: rgb(252, 173, 99);
+  color: #07153d;
+  font-weight: bold;
+}
+
+
+/* ------------------------------------------------------------
+   CONTENIDO PRINCIPAL
+   Es la zona donde se muestran las secciones (Inicio,
+   Estudiantes, Novedades, Acerca de).
+   ------------------------------------------------------------ */
+.contenido {
+  flex: 1; /* ocupa todo el espacio que sobra despues del menu */
+  padding: 30px;
+}
+
+.contenido h2 {
+  color: #07153d;
+  margin-bottom: 10px;
+}
+
+
+/* ------------------------------------------------------------
+   MOSTRAR / OCULTAR SECCIONES
+   Todas las <section class="seccion"> se muestran normalmente.
+   Cuando tienen ademas la clase "oculto", desaparecen.
+   Esto lo controla app.js cambiando las clases con JavaScript.
+   ------------------------------------------------------------ */
+.oculto {
+  display: none !important;
+}
+
+
+/* ------------------------------------------------------------
+   TARJETAS DE ESTADISTICAS (seccion Inicio)
+   ------------------------------------------------------------ */
+.tarjetas {
+  display: flex;
+  flex-wrap: wrap; /* si no caben todas en una fila, pasan a la siguiente */
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.tarjeta {
+  background-color: white;
+  border: 5px solid #07153d;
+  border-radius: 10px;
+  padding: 20px;
+  flex: 1;
+  min-width: 180px;
+  text-align: center;
+}
+
+.numero-tarjeta {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #07153d;
+  margin-top: 10px;
+}
+
+/* Version mas pequeña del numero de tarjeta, para cuando el
+   valor es un texto largo (por ejemplo el nombre de un tipo
+   de novedad) en vez de un numero. */
+.numero-tarjeta-texto {
+  font-size: 1.5rem;
+}
+
+
+/* ------------------------------------------------------------
+   DASHBOARD: GRAFICAS DE BARRAS
+   Cada grafica es una tarjeta blanca con filas: nombre,
+   barra y valor. Las barras son <div> con su ancho calculado
+   en JavaScript segun el dato, no una libreria externa.
+   ------------------------------------------------------------ */
+.graficas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.grafica-caja {
+  background-color: white;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.grafica-caja h3 {
+  color: #07153d;
+  margin-bottom: 15px;
+}
+
+.grafica-vacia {
+  color: #868e96;
+  font-style: italic;
+}
+
+.fila-barra {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.etiqueta-barra {
+  width: 110px;
+  flex-shrink: 0;
+  font-size: 0.9rem;
+  text-align: right;
+}
+
+.pista-barra {
+  flex: 1;
+  height: 18px;
+  background-color: #f1f3f5;
+  border-radius: 9px;
+  overflow: hidden;
+}
+
+.relleno-barra {
+  height: 100%;
+  border-radius: 9px;
+  transition: width 0.3s ease;
+}
+
+.valor-barra {
+  width: 30px;
+  flex-shrink: 0;
+  font-weight: bold;
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Leyenda de colores (usada en la grafica de novedades por tipo) */
+.leyenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.leyenda-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: #52514e;
+}
+
+.leyenda-punto {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+
+/* ------------------------------------------------------------
+   FORMULARIOS (estudiantes y novedades)
+   Cada campo (label + input) se acomoda en su propia fila.
+   ------------------------------------------------------------ */
+.formulario {
+  background-color: white;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 20px;
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.formulario h3 {
+  width: 100%;
+  color: #07153d;
+}
+
+.fila-formulario {
+  display: flex;
+  flex-direction: column;
+  width: 220px;
+}
+
+.fila-formulario label {
+  margin-bottom: 5px;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.fila-formulario input,
+.fila-formulario select,
+.fila-formulario textarea {
+  padding: 8px;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-family: inherit;
+}
+
+.fila-formulario textarea {
+  resize: vertical;
+  min-height: 110px;
+}
+
+/* Fila mas ancha para campos que necesitan mas espacio, como
+   la descripcion de una novedad. */
+.fila-formulario-ancha {
+  width: 100%;
+}
+
+/* Fila especial donde van los botones Guardar/Actualizar/Cancelar */
+.fila-botones {
+  width: 100%;
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+
+/* ------------------------------------------------------------
+   BOTONES
+   ------------------------------------------------------------ */
+.boton {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  background-color: #e9ecef; /* gris claro por defecto */
+  color: #212529;
+}
+
+.boton:hover {
+  background-color: #dee2e6;
+}
+
+/* Boton principal: se usa en acciones importantes como
+   Guardar, Nuevo Estudiante o Nueva Novedad */
+.boton-principal {
+  background-color: #07153d;
+  color: white;
+}
+
+.boton-principal:hover {
+  background-color: #07153d;
+}
+
+/* Botones pequeños de Editar y Eliminar dentro de la tabla */
+.boton-accion {
+  padding: 6px 10px;
+  font-size: 0.85rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color: #07153d;
+  color: white;
+  margin-right: 5px;
+}
+
+.boton-eliminar {
+  background-color: #e03131; /* rojo, para indicar peligro */
+}
+
+
+/* ------------------------------------------------------------
+   BARRA DE HERRAMIENTAS (buscador, orden, filtros)
+   ------------------------------------------------------------ */
+.barra-herramientas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+  align-items: center;
+}
+
+.barra-herramientas input,
+.barra-herramientas select {
+  padding: 8px;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+
+/* ------------------------------------------------------------
+   TABLA DE DATOS (estudiantes y novedades)
+   ------------------------------------------------------------ */
+.tabla {
+  width: 100%;
+  border-collapse: collapse; /* une los bordes de las celdas en uno solo */
+  background-color: white;
+  margin-top: 15px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.tabla th,
+.tabla td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.tabla th {
+  background-color: #07153d;
+  color: white;
+}
+
+/* Color de fondo alterno para filas pares, facilita la lectura */
+.tabla tbody tr:nth-child(even) {
+  background-color: #f8f9fa;
+}
+
+
+/* ============================================================
+   DISEÑO RESPONSIVE
+   Estas reglas solo se aplican cuando la pantalla es angosta
+   (celulares y tablets), es decir, ancho menor a 768px.
+   ============================================================ */
+@media (max-width: 768px) {
+
+  /* En celular, el menu lateral y el contenido quedan uno
+     encima del otro en vez de uno al lado del otro. */
+  .contenedor-principal {
+    flex-direction: column;
+  }
+
+  .menu-lateral {
+    width: 100%;
+    padding: 10px 0;
+  }
+
+  .menu-lateral ul {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .contenido {
+    padding: 15px;
+  }
+
+  /* Cada campo del formulario ocupa todo el ancho disponible
+     en vez de una columna fija. */
+  .fila-formulario {
+    width: 100%;
+  }
+
+  /* La tabla se desplaza horizontalmente si no cabe. */
+  .tabla {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+}
+/* ================= ACERCA DE ================= */
+
+.acerca-contenedor{
+    margin-top:25px;
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+    gap:25px;
+}
+
+.acerca-card{
+    background:#fff;
+    border-radius:10px;
+    padding:25px;
+    box-shadow:0 4px 12px rgba(0,0,0,.08);
+    border-left:6px solid #07153d;
+}
+
+.acerca-card h3{
+    color:#07153d;
+    margin-bottom:15px;
+}
+
+.acerca-card p{
+    line-height:1.7;
+    text-align:justify;
+}
+
+.acerca-card ul{
+    padding-left:20px;
+    line-height:2;
+}
+
+.tecnologias{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    margin-top:15px;
+}
+
+.tech{
+    background:#07153d;
+    color:white;
+    padding:10px 18px;
+    border-radius:25px;
+    font-weight:bold;
+}
