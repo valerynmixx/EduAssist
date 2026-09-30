@@ -45,6 +45,11 @@ function mostrarSeccion(nombreSeccion) {
 // pantalla, listo para registrar un estudiante nuevo.
 // ------------------------------------------------------------
 function mostrarFormularioNuevoEstudiante() {
+  if (usuarioActual.rol !== "admin") {
+    alert("No tienes permiso para crear estudiantes.");
+    return;
+  }
+
   limpiarFormularioEstudiante();
   document.getElementById("form-estudiante").classList.remove("oculto");
 }

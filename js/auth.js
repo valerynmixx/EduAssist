@@ -123,6 +123,10 @@ function mostrarInfoUsuario() {
 // ------------------------------------------------------------
 function aplicarVisibilidadPorRol() {
   const itemUsuarios = document.getElementById("item-menu-usuarios");
+  const puedeGestionarEstudiantes = usuarioActual.rol === "admin";
+
+  document.getElementById("boton-nuevo-estudiante").classList.toggle("oculto", !puedeGestionarEstudiantes);
+  document.getElementById("form-estudiante").classList.add("oculto");
 
   if (usuarioActual.rol === "admin") {
     itemUsuarios.classList.remove("oculto");

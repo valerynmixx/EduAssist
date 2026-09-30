@@ -78,6 +78,7 @@ create table novedades (
   fecha_inicio date not null,                         -- fecha en que empieza la novedad
   fecha_fin date,                                     -- fecha en que termina la novedad
   descripcion text,                                   -- descripcion de la novedad
+  estado text not null default 'Pendiente',            -- estado de revision de la novedad
   fecha_registro timestamp default now()              -- fecha en que se registro en el sistema
 );
 

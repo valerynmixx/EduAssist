@@ -369,6 +369,31 @@ body {
   width: 100%;
 }
 
+.control-archivo {
+  gap: 8px;
+}
+
+.etiqueta-archivo {
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.acciones-archivo {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.input-archivo-oculto {
+  display: none;
+}
+
+.estado-archivo {
+  overflow-wrap: anywhere;
+  font-size: 0.9rem;
+}
+
 /* Fila especial donde van los botones Guardar/Actualizar/Cancelar */
 .fila-botones {
   width: 100%;
@@ -420,6 +445,30 @@ body {
 
 .boton-eliminar {
   background-color: #e03131; /* rojo, para indicar peligro */
+}
+
+.badge-estado {
+  display: inline-block;
+  padding: 5px 9px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.badge-estado-pendiente {
+  background-color: #fff3bf;
+  color: #7a4d00;
+}
+
+.badge-estado-aceptado {
+  background-color: #d3f9d8;
+  color: #1b5e20;
+}
+
+.badge-estado-rechazado {
+  background-color: #ffe3e3;
+  color: #9b1c1c;
 }
 
 

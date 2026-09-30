@@ -74,9 +74,10 @@ function mostrarEstudiantesEnTabla(estudiantes) {
       "<td>" + estudiante.apellidos + "</td>" +
       "<td>" + nombreGrado + "</td>" +
       "<td>" + estudiante.estado + "</td>" +
-      "<td>" +
-        "<button class='boton-accion' onclick='prepararEdicionEstudiante(" + estudiante.id + ")'>Editar</button> " +
-        "<button class='boton-accion boton-eliminar' onclick='eliminarEstudiante(" + estudiante.id + ")'>Eliminar</button>" +
+      "<td>" + (usuarioActual.rol === "admin"
+        ? "<button class='boton-accion' onclick='prepararEdicionEstudiante(" + estudiante.id + ")'>Editar</button> " +
+          "<button class='boton-accion boton-eliminar' onclick='eliminarEstudiante(" + estudiante.id + ")'>Eliminar</button>"
+        : "-") +
       "</td>";
 
     cuerpoTabla.appendChild(fila);
@@ -201,6 +202,11 @@ async function guardarEstudiante(evento) {
   // Evitamos que el formulario recargue la pagina.
   evento.preventDefault();
 
+  if (usuarioActual.rol !== "admin") {
+    alert("No tienes permiso para crear o editar estudiantes.");
+    return;
+  }
+
   // Si la validacion falla, no continuamos.
   if (!validarFormularioEstudiante()) {
     return;
@@ -271,6 +277,11 @@ async function guardarEstudiante(evento) {
 // dentro del formulario para poder editarlos.
 // ------------------------------------------------------------
 function prepararEdicionEstudiante(idEstudiante) {
+  if (usuarioActual.rol !== "admin") {
+    alert("No tienes permiso para editar estudiantes.");
+    return;
+  }
+
   // Buscamos el estudiante dentro de la lista que ya tenemos.
   const estudiante = listaEstudiantes.find(function (e) {
     return e.id === idEstudiante;
@@ -312,6 +323,11 @@ function prepararEdicionEstudiante(idEstudiante) {
 // estudiante de la base de datos.
 // ------------------------------------------------------------
 async function eliminarEstudiante(idEstudiante) {
+  if (usuarioActual.rol !== "admin") {
+    alert("No tienes permiso para eliminar estudiantes.");
+    return;
+  }
+
   const confirmacion = confirm("¿Esta seguro que desea eliminar este estudiante?");
 
   if (!confirmacion) {

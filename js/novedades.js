@@ -115,7 +115,7 @@ function mostrarNovedadesEnTabla(novedades) {
   cuerpoTabla.innerHTML = "";
 
   if (novedades.length === 0) {
-    cuerpoTabla.innerHTML = "<tr><td colspan='6'>No hay novedades registradas.</td></tr>";
+    cuerpoTabla.innerHTML = "<tr><td colspan='7'>No hay novedades registradas.</td></tr>";
     return;
   }
 
@@ -130,19 +130,99 @@ function mostrarNovedadesEnTabla(novedades) {
     const nombreTipo = novedad.tipos_novedad ? novedad.tipos_novedad.nombre : "Sin tipo";
 
     const fila = document.createElement("tr");
-    fila.innerHTML =
-      "<td>" + nombreEstudiante + "</td>" +
-      "<td>" + nombreTipo + "</td>" +
-      "<td>" + novedad.fecha_inicio + "</td>" +
-      "<td>" + (novedad.fecha_fin || "-") + "</td>" +
-      "<td>" + (novedad.descripcion || "-") + "</td>" +
-      "<td>" +
-        "<button class='boton-accion' onclick='prepararEdicionNovedad(" + novedad.id + ")'>Editar</button> " +
-        "<button class='boton-accion boton-eliminar' onclick='eliminarNovedad(" + novedad.id + ")'>Eliminar</button>" +
-      "</td>";
+    [nombreEstudiante, nombreTipo, novedad.fecha_inicio, novedad.fecha_fin || "-", novedad.descripcion || "-"].forEach(function (valor) {
+      const celda = document.createElement("td");
+      celda.textContent = valor;
+      fila.appendChild(celda);
+    });
+
+    const celdaEstado = document.createElement("td");
+    const estado = novedad.estado || "Pendiente";
+    const badgeEstado = document.createElement("span");
+    badgeEstado.className = "badge-estado badge-estado-" + estado.toLowerCase();
+    badgeEstado.textContent = estado;
+    celdaEstado.appendChild(badgeEstado);
+    fila.appendChild(celdaEstado);
+
+    const celdaAcciones = document.createElement("td");
+    if (usuarioActual.rol === "profesor" && estado === "Pendiente") {
+      const botonAceptar = document.createElement("button");
+      botonAceptar.type = "button";
+      botonAceptar.className = "boton-accion";
+      botonAceptar.textContent = "Aceptar";
+      botonAceptar.addEventListener("click", function () {
+        actualizarEstadoNovedad(novedad.id, "Aceptado");
+      });
+
+      const botonRechazar = document.createElement("button");
+      botonRechazar.type = "button";
+      botonRechazar.className = "boton-accion boton-eliminar";
+      botonRechazar.textContent = "Rechazar";
+      botonRechazar.addEventListener("click", function () {
+        actualizarEstadoNovedad(novedad.id, "Rechazado");
+      });
+
+      celdaAcciones.append(botonAceptar, botonRechazar);
+    } else if (usuarioActual.rol === "admin") {
+      const botonEditar = document.createElement("button");
+      botonEditar.type = "button";
+      botonEditar.className = "boton-accion";
+      botonEditar.textContent = "Editar";
+      botonEditar.addEventListener("click", function () {
+        prepararEdicionNovedad(novedad.id);
+      });
+
+      const botonEliminar = document.createElement("button");
+      botonEliminar.type = "button";
+      botonEliminar.className = "boton-accion boton-eliminar";
+      botonEliminar.textContent = "Eliminar";
+      botonEliminar.addEventListener("click", function () {
+        eliminarNovedad(novedad.id);
+      });
+
+      celdaAcciones.append(botonEditar, botonEliminar);
+    } else {
+      celdaAcciones.textContent = "-";
+    }
+    fila.appendChild(celdaAcciones);
 
     cuerpoTabla.appendChild(fila);
   });
+}
+
+
+async function actualizarEstadoNovedad(idNovedad, nuevoEstado) {
+  if (usuarioActual.rol !== "profesor") {
+    alert("Solo un docente puede revisar las novedades.");
+    return;
+  }
+
+  if (!["Aceptado", "Rechazado"].includes(nuevoEstado)) {
+    alert("El estado seleccionado no es válido.");
+    return;
+  }
+
+  const { error } = await supabase
+    .from("novedades")
+    .update({ estado: nuevoEstado })
+    .eq("id", idNovedad);
+
+  if (error) {
+    console.error("Error al actualizar el estado de la novedad:", {
+      message: error.message,
+      code: error.code,
+      details: error.details,
+      hint: error.hint
+    });
+    if (error.code === "42703" && error.message.includes("estado")) {
+      alert("La columna 'estado' no existe en Supabase. Ejecuta sql/migracion_estado_novedades.sql en el SQL Editor y vuelve a intentarlo.");
+    } else {
+      alert("No se pudo actualizar el estado de la novedad: " + (error.message || "Error desconocido"));
+    }
+    return;
+  }
+
+  await listarNovedades();
 }
 
 
@@ -219,6 +299,9 @@ async function guardarNovedad(evento) {
   let error;
 
   if (idNovedad === "") {
+    if (usuarioActual.rol === "acudiente") {
+      datosNovedad.estado = "Pendiente";
+    }
     const respuesta = await supabase.from("novedades").insert([datosNovedad]);
     error = respuesta.error;
   } else {

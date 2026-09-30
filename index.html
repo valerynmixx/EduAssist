@@ -158,7 +158,7 @@
           <button class="boton" onclick="buscarEstudiante()">Buscar</button>
           <button class="boton" onclick="ordenarEstudiantesPorNombre()">Ordenar por Nombre</button>
           <button class="boton" onclick="ordenarEstudiantesPorGrado()">Ordenar por Grado</button>
-          <button class="boton boton-principal" onclick="mostrarFormularioNuevoEstudiante()">+ Nuevo Estudiante</button>
+          <button id="boton-nuevo-estudiante" class="boton boton-principal" onclick="mostrarFormularioNuevoEstudiante()">+ Nuevo Estudiante</button>
         </div>
 
         <!-- Formulario para agregar o editar un estudiante.
@@ -309,8 +309,27 @@
           </div>
 
           <div class="fila-formulario fila-formulario-ancha">
-            <label for="input-descripcion-novedad">Descripcion:</label>
+            <label for="input-descripcion-novedad">Descripción:</label>
             <textarea id="input-descripcion-novedad" rows="5"></textarea>
+          </div>
+
+          <div class="fila-formulario fila-formulario-ancha control-archivo">
+            <span class="etiqueta-archivo">Foto o archivo:</span>
+            <div class="acciones-archivo">
+              <input
+                type="file"
+                id="input-archivo-novedad"
+                class="input-archivo-oculto"
+                accept="image/*,.pdf,.doc,.docx,.xls,.xlsx"
+                capture="environment"
+                onchange="mostrarArchivoSeleccionadoNovedad(this)"
+              >
+              <button type="button" class="boton" onclick="document.getElementById('input-archivo-novedad').click()">
+                Tomar foto o agregar archivo
+              </button>
+              <span id="nombre-archivo-novedad" class="estado-archivo"></span>
+              <span id="archivo-actual-novedad" class="estado-archivo"></span>
+            </div>
           </div>
 
           <div class="fila-botones">
@@ -327,7 +346,8 @@
               <th>Tipo</th>
               <th>Fecha inicio</th>
               <th>Fecha fin</th>
-              <th>Descripcion</th>
+              <th>Descripción</th>
+              <th>Estado</th>
               <th>Acciones</th>
             </tr>
           </thead>
@@ -530,7 +550,7 @@
   <script src="js/usuarios.js?v=2"></script>
   <script src="js/grados.js?v=2"></script>
   <script src="js/estudiantes.js?v=3"></script>
-  <script src="js/novedades.js?v=3"></script>
+  <script src="js/novedades.js?v=6"></script>
   <script src="js/dashboard.js?v=1"></script>
   <script src="js/app.js?v=5"></script>
 
