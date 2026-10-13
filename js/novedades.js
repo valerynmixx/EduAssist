@@ -22,6 +22,48 @@ let listaNovedades = [];
 // Incapacidad, Cita Medica).
 let listaTiposNovedad = [];
 
+const BUCKET_ARCHIVOS_NOVEDADES = "novedad-archivos";
+const TAMANO_MAXIMO_ARCHIVO_NOVEDAD = 10 * 1024 * 1024;
+
+
+function mostrarArchivoSeleccionadoNovedad(input) {
+  const archivo = input.files[0];
+  const etiqueta = document.getElementById("nombre-archivo-novedad");
+
+  if (archivo && archivo.size > TAMANO_MAXIMO_ARCHIVO_NOVEDAD) {
+    alert("El archivo no puede superar los 10 MB.");
+    input.value = "";
+    etiqueta.textContent = "";
+    return;
+  }
+
+  etiqueta.textContent = archivo ? "Seleccionado: " + archivo.name : "";
+}
+
+
+document.getElementById("input-archivo-novedad").addEventListener("change", function (evento) {
+  mostrarArchivoSeleccionadoNovedad(evento.target);
+});
+
+
+function mostrarEnlaceArchivoNovedad(contenedor, novedad) {
+  contenedor.innerHTML = "";
+
+  if (!novedad || !novedad.archivo_path) {
+    return;
+  }
+
+  const { data } = supabase.storage
+    .from(BUCKET_ARCHIVOS_NOVEDADES)
+    .getPublicUrl(novedad.archivo_path);
+  const enlace = document.createElement("a");
+  enlace.href = data.publicUrl;
+  enlace.target = "_blank";
+  enlace.rel = "noopener noreferrer";
+  enlace.textContent = novedad.archivo_nombre || "Abrir archivo adjunto";
+  contenedor.appendChild(enlace);
+}
+
 
 // ------------------------------------------------------------
 // FUNCION: cargarTiposNovedad
@@ -96,7 +138,8 @@ async function listarNovedades() {
 
   if (error) {
     console.error("Error al listar novedades:", error);
-    alert("No se pudieron cargar las novedades.");
+    alert(
+      "No se pudieron cargar las novedades.");
     return;
   }
 
@@ -115,7 +158,7 @@ function mostrarNovedadesEnTabla(novedades) {
   cuerpoTabla.innerHTML = "";
 
   if (novedades.length === 0) {
-    cuerpoTabla.innerHTML = "<tr><td colspan='7'>No hay novedades registradas.</td></tr>";
+    cuerpoTabla.innerHTML = "<tr><td colspan='8'>No hay novedades registradas.</td></tr>";
     return;
   }
 
@@ -135,6 +178,14 @@ function mostrarNovedadesEnTabla(novedades) {
       celda.textContent = valor;
       fila.appendChild(celda);
     });
+
+    const celdaArchivo = document.createElement("td");
+    if (novedad.archivo_path) {
+      mostrarEnlaceArchivoNovedad(celdaArchivo, novedad);
+    } else {
+      celdaArchivo.textContent = "-";
+    }
+    fila.appendChild(celdaArchivo);
 
     const celdaEstado = document.createElement("td");
     const estado = novedad.estado || "Pendiente";
@@ -287,6 +338,12 @@ async function guardarNovedad(evento) {
   }
 
   const idNovedad = document.getElementById("input-id-novedad").value;
+  const archivo = document.getElementById("input-archivo-novedad").files[0];
+
+  if (archivo && archivo.size > TAMANO_MAXIMO_ARCHIVO_NOVEDAD) {
+    alert("El archivo no puede superar los 10 MB.");
+    return;
+  }
 
   const datosNovedad = {
     estudiante_id: document.getElementById("select-estudiante-novedad").value,
@@ -296,26 +353,82 @@ async function guardarNovedad(evento) {
     descripcion: document.getElementById("input-descripcion-novedad").value.trim()
   };
 
+  let rutaArchivoSubido = null;
+  const novedadActual = idNovedad
+    ? listaNovedades.find(function (novedad) { return String(novedad.id) === idNovedad; })
+    : null;
+
+  if (archivo) {
+    const nombreSeguro = archivo.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+    rutaArchivoSubido = Date.now() + "-" + Math.random().toString(36).slice(2) + "-" + nombreSeguro;
+    const { error: errorSubida } = await supabase.storage
+      .from(BUCKET_ARCHIVOS_NOVEDADES)
+      .upload(rutaArchivoSubido, archivo, { upsert: false });
+
+    if (errorSubida) {
+      console.error("Error al cargar el archivo de la novedad:", errorSubida);
+      alert("No se pudo cargar el archivo: " + errorSubida.message);
+      return;
+    }
+
+    datosNovedad.archivo_path = rutaArchivoSubido;
+    datosNovedad.archivo_nombre = archivo.name;
+  }
+
   let error;
+  let novedadGuardada;
 
   if (idNovedad === "") {
     if (usuarioActual.rol === "acudiente") {
       datosNovedad.estado = "Pendiente";
     }
-    const respuesta = await supabase.from("novedades").insert([datosNovedad]);
+    const respuesta = await supabase
+      .from("novedades")
+      .insert([datosNovedad])
+      .select("id, archivo_path")
+      .single();
     error = respuesta.error;
+    novedadGuardada = respuesta.data;
   } else {
     const respuesta = await supabase
       .from("novedades")
       .update(datosNovedad)
-      .eq("id", idNovedad);
+      .eq("id", idNovedad)
+      .select("id, archivo_path")
+      .maybeSingle();
     error = respuesta.error;
+    novedadGuardada = respuesta.data;
   }
 
   if (error) {
     console.error("Error al guardar la novedad:", error);
-    alert("Ocurrio un error al guardar la novedad.");
+    if (rutaArchivoSubido) {
+      await supabase.storage.from(BUCKET_ARCHIVOS_NOVEDADES).remove([rutaArchivoSubido]);
+    }
+    if (error.code === "42703" && (error.message.includes("archivo_path") || error.message.includes("archivo_nombre"))) {
+      alert("Faltan las columnas para adjuntos. Ejecuta sql/migracion_archivos_novedades.sql en Supabase y vuelve a intentarlo.");
+    } else {
+      alert("Ocurrio un error al guardar la novedad: " + (error.message || "Error desconocido"));
+    }
     return;
+  }
+
+  if (!novedadGuardada || (archivo && novedadGuardada.archivo_path !== rutaArchivoSubido)) {
+    if (rutaArchivoSubido) {
+      await supabase.storage.from(BUCKET_ARCHIVOS_NOVEDADES).remove([rutaArchivoSubido]);
+    }
+    console.error("Supabase no confirmo la ruta del archivo en la novedad:", novedadGuardada);
+    alert("No se pudo confirmar el archivo en la novedad. Recarga la lista y vuelve a intentarlo.");
+    return;
+  }
+
+  if (rutaArchivoSubido && novedadActual && novedadActual.archivo_path) {
+    const { error: errorEliminarArchivoAnterior } = await supabase.storage
+      .from(BUCKET_ARCHIVOS_NOVEDADES)
+      .remove([novedadActual.archivo_path]);
+    if (errorEliminarArchivoAnterior) {
+      console.error("No se pudo eliminar el archivo anterior:", errorEliminarArchivoAnterior);
+    }
   }
 
   alert("Novedad guardada correctamente.");
@@ -347,6 +460,9 @@ function prepararEdicionNovedad(idNovedad) {
   document.getElementById("input-fecha-inicio-novedad").value = novedad.fecha_inicio;
   document.getElementById("input-fecha-fin-novedad").value = novedad.fecha_fin || "";
   document.getElementById("input-descripcion-novedad").value = novedad.descripcion || "";
+  document.getElementById("input-archivo-novedad").value = "";
+  document.getElementById("nombre-archivo-novedad").textContent = "";
+  mostrarEnlaceArchivoNovedad(document.getElementById("archivo-actual-novedad"), novedad);
 
   document.getElementById("boton-guardar-novedad").textContent = "Actualizar";
   document.getElementById("form-novedad").classList.remove("oculto");
@@ -365,12 +481,25 @@ async function eliminarNovedad(idNovedad) {
     return;
   }
 
+  const novedad = listaNovedades.find(function (elemento) {
+    return String(elemento.id) === String(idNovedad);
+  });
+
   const { error } = await supabase.from("novedades").delete().eq("id", idNovedad);
 
   if (error) {
     console.error("Error al eliminar la novedad:", error);
     alert("No se pudo eliminar la novedad.");
     return;
+  }
+
+  if (novedad && novedad.archivo_path) {
+    const { error: errorEliminarArchivo } = await supabase.storage
+      .from(BUCKET_ARCHIVOS_NOVEDADES)
+      .remove([novedad.archivo_path]);
+    if (errorEliminarArchivo) {
+      console.error("No se pudo eliminar el archivo adjunto:", errorEliminarArchivo);
+    }
   }
 
   alert("Novedad eliminada correctamente.");
@@ -388,6 +517,8 @@ async function eliminarNovedad(idNovedad) {
 function limpiarFormularioNovedad() {
   document.getElementById("form-novedad").reset();
   document.getElementById("input-id-novedad").value = "";
+  document.getElementById("nombre-archivo-novedad").textContent = "";
+  document.getElementById("archivo-actual-novedad").textContent = "";
   document.getElementById("boton-guardar-novedad").textContent = "Guardar";
 }
 
