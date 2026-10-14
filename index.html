@@ -338,10 +338,11 @@
         </form>
 
         <!-- Tabla con el listado de novedades -->
-        <table class="tabla">
+        <table class="tabla tabla-novedades">
           <thead>
             <tr>
               <th>Estudiante</th>
+              <th>Teléfono de acudiente</th>
               <th>Tipo</th>
               <th>Fecha inicio</th>
               <th>Fecha fin</th>
@@ -367,9 +368,16 @@
         <h2>Dashboard</h2>
         <p>Resumen visual de estudiantes y novedades:</p>
 
+        <div class="barra-herramientas">
+          <label for="select-filtro-estudiante-dashboard">Filtrar por estudiante:</label>
+          <select id="select-filtro-estudiante-dashboard" onchange="actualizarDashboard()">
+            <option value="">Todos los estudiantes</option>
+          </select>
+        </div>
+
         <div class="tarjetas">
           <div class="tarjeta">
-            <h3>Total Estudiantes</h3>
+            <h3>Estudiantes mostrados</h3>
             <p class="numero-tarjeta" id="dashboard-total-estudiantes">0</p>
           </div>
           <div class="tarjeta">
@@ -551,8 +559,8 @@
   <script src="js/grados.js?v=2"></script>
   <script src="js/estudiantes.js?v=3"></script>
   <script src="js/novedades.js?v=9"></script>
-  <script src="js/dashboard.js?v=1"></script>
-  <script src="js/app.js?v=5"></script>
+  <script src="js/dashboard.js?v=2"></script>
+  <script src="js/app.js?v=6"></script>
 
 </body>
 </html>

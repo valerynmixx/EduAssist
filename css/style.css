@@ -516,6 +516,74 @@ body {
   color: white;
 }
 
+.tabla-novedades {
+  font-size: 0.85rem;
+}
+
+.tabla-novedades th,
+.tabla-novedades td {
+  padding: 7px 8px;
+  line-height: 1.25;
+}
+
+.tabla-novedades td:nth-child(4),
+.tabla-novedades td:nth-child(5) {
+  white-space: nowrap;
+}
+
+.texto-descripcion-novedad {
+  display: inline-block;
+  max-width: 180px;
+  overflow: hidden;
+  font-size: 0.72rem;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.texto-descripcion-novedad.descripcion-expandida {
+  max-width: 240px;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.boton-expandir-descripcion {
+  margin-left: 3px;
+  padding: 0 3px;
+  border: 0;
+  background: transparent;
+  color: #07153d;
+  cursor: pointer;
+  font-size: 0.75rem;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+.tabla-novedades td:nth-child(7) a {
+  display: inline-block;
+  max-width: 120px;
+  overflow: hidden;
+  font-size: 0.75rem;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.acciones-novedad {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 4px;
+}
+
+.acciones-novedad .boton-accion {
+  flex: 0 0 auto;
+  margin-right: 0;
+  padding: 4px 7px;
+  font-size: 0.75rem;
+}
+
 /* Color de fondo alterno para filas pares, facilita la lectura */
 .tabla tbody tr:nth-child(even) {
   background-color: #f8f9fa;

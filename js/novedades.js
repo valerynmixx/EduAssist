@@ -133,7 +133,7 @@ function llenarSelectEstudiantesNovedad(idSelect) {
 async function listarNovedades() {
   const { data, error } = await supabase
     .from("novedades")
-    .select("*, estudiantes(nombres, apellidos, documento, grado_id), tipos_novedad(nombre)")
+    .select("*, estudiantes(nombres, apellidos, documento, grado_id, telefono_acudiente), tipos_novedad(nombre)")
     .order("fecha_inicio", { ascending: false });
 
   if (error) {
@@ -158,7 +158,7 @@ function mostrarNovedadesEnTabla(novedades) {
   cuerpoTabla.innerHTML = "";
 
   if (novedades.length === 0) {
-    cuerpoTabla.innerHTML = "<tr><td colspan='8'>No hay novedades registradas.</td></tr>";
+    cuerpoTabla.innerHTML = "<tr><td colspan='9'>No hay novedades registradas.</td></tr>";
     return;
   }
 
@@ -173,11 +173,42 @@ function mostrarNovedadesEnTabla(novedades) {
     const nombreTipo = novedad.tipos_novedad ? novedad.tipos_novedad.nombre : "Sin tipo";
 
     const fila = document.createElement("tr");
-    [nombreEstudiante, nombreTipo, novedad.fecha_inicio, novedad.fecha_fin || "-", novedad.descripcion || "-"].forEach(function (valor) {
+    [
+      nombreEstudiante,
+      novedad.estudiantes ? novedad.estudiantes.telefono_acudiente || "-" : "-",
+      nombreTipo,
+      novedad.fecha_inicio,
+      novedad.fecha_fin || "-"
+    ].forEach(function (valor) {
       const celda = document.createElement("td");
       celda.textContent = valor;
       fila.appendChild(celda);
     });
+
+    const celdaDescripcion = document.createElement("td");
+    const descripcion = novedad.descripcion || "-";
+    const textoDescripcion = document.createElement("span");
+    textoDescripcion.className = "texto-descripcion-novedad";
+    textoDescripcion.textContent = descripcion;
+    celdaDescripcion.appendChild(textoDescripcion);
+
+    const botonDescripcion = document.createElement("button");
+    botonDescripcion.type = "button";
+    botonDescripcion.className = "boton-expandir-descripcion";
+    botonDescripcion.textContent = "▾";
+    botonDescripcion.title = "Ver descripción completa";
+    botonDescripcion.setAttribute("aria-label", "Ver descripción completa");
+    botonDescripcion.setAttribute("aria-expanded", "false");
+    botonDescripcion.hidden = true;
+    botonDescripcion.addEventListener("click", function () {
+      const expandida = textoDescripcion.classList.toggle("descripcion-expandida");
+      botonDescripcion.textContent = expandida ? "▴" : "▾";
+      botonDescripcion.title = expandida ? "Contraer descripción" : "Ver descripción completa";
+      botonDescripcion.setAttribute("aria-label", botonDescripcion.title);
+      botonDescripcion.setAttribute("aria-expanded", String(expandida));
+    });
+    celdaDescripcion.appendChild(botonDescripcion);
+    fila.appendChild(celdaDescripcion);
 
     const celdaArchivo = document.createElement("td");
     if (novedad.archivo_path) {
@@ -196,11 +227,15 @@ function mostrarNovedadesEnTabla(novedades) {
     fila.appendChild(celdaEstado);
 
     const celdaAcciones = document.createElement("td");
+    const grupoAcciones = document.createElement("div");
+    grupoAcciones.className = "acciones-novedad";
     if (usuarioActual.rol === "profesor" && estado === "Pendiente") {
       const botonAceptar = document.createElement("button");
       botonAceptar.type = "button";
       botonAceptar.className = "boton-accion";
-      botonAceptar.textContent = "Aceptar";
+      botonAceptar.textContent = "✓";
+      botonAceptar.title = "Aceptar";
+      botonAceptar.setAttribute("aria-label", "Aceptar");
       botonAceptar.addEventListener("click", function () {
         actualizarEstadoNovedad(novedad.id, "Aceptado");
       });
@@ -208,12 +243,14 @@ function mostrarNovedadesEnTabla(novedades) {
       const botonRechazar = document.createElement("button");
       botonRechazar.type = "button";
       botonRechazar.className = "boton-accion boton-eliminar";
-      botonRechazar.textContent = "Rechazar";
+      botonRechazar.textContent = "✕";
+      botonRechazar.title = "Rechazar";
+      botonRechazar.setAttribute("aria-label", "Rechazar");
       botonRechazar.addEventListener("click", function () {
         actualizarEstadoNovedad(novedad.id, "Rechazado");
       });
 
-      celdaAcciones.append(botonAceptar, botonRechazar);
+      grupoAcciones.append(botonAceptar, botonRechazar);
     } else if (usuarioActual.rol === "admin") {
       const botonEditar = document.createElement("button");
       botonEditar.type = "button";
@@ -231,13 +268,17 @@ function mostrarNovedadesEnTabla(novedades) {
         eliminarNovedad(novedad.id);
       });
 
-      celdaAcciones.append(botonEditar, botonEliminar);
+      grupoAcciones.append(botonEditar, botonEliminar);
     } else {
       celdaAcciones.textContent = "-";
+    }
+    if (grupoAcciones.childElementCount > 0) {
+      celdaAcciones.appendChild(grupoAcciones);
     }
     fila.appendChild(celdaAcciones);
 
     cuerpoTabla.appendChild(fila);
+    botonDescripcion.hidden = textoDescripcion.scrollWidth <= textoDescripcion.clientWidth;
   });
 }
 

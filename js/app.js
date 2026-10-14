@@ -145,6 +145,7 @@ async function iniciarAplicacion() {
   llenarSelectTiposNovedad("select-tipo-novedad");
   llenarSelectTiposNovedad("select-filtro-tipo");
   llenarSelectAcudientes("select-acudiente-estudiante");
+  llenarFiltroEstudianteDashboard();
 
   // 3.1 Segun el rol del usuario que inicio sesion:
   // - profesor/acudiente: se quitan del select de "Nueva Novedad"

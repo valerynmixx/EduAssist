@@ -21,9 +21,9 @@ var COLOR_ESTUDIANTE_INACTIVO = "#898781"; // gris (estado neutro)
 // Cuenta cuantos estudiantes hay en cada grado, en el mismo
 // orden en que estan los grados (Preescolar a Undecimo).
 // ------------------------------------------------------------
-function calcularEstudiantesPorGrado() {
+function calcularEstudiantesPorGrado(estudiantes) {
   return listaGrados.map(function (grado) {
-    const cantidad = listaEstudiantes.filter(function (estudiante) {
+    const cantidad = estudiantes.filter(function (estudiante) {
       return estudiante.grado_id === grado.id;
     }).length;
 
@@ -37,9 +37,9 @@ function calcularEstudiantesPorGrado() {
 // Cuenta cuantas novedades hay de cada tipo (Permiso,
 // Incapacidad, Cita Medica).
 // ------------------------------------------------------------
-function calcularNovedadesPorTipo() {
+function calcularNovedadesPorTipo(novedades) {
   return listaTiposNovedad.map(function (tipo) {
-    const cantidad = listaNovedades.filter(function (novedad) {
+    const cantidad = novedades.filter(function (novedad) {
       return novedad.tipo_id === tipo.id;
     }).length;
 
@@ -52,17 +52,30 @@ function calcularNovedadesPorTipo() {
 // FUNCION: calcularEstudiantesPorEstado
 // Cuenta cuantos estudiantes estan Activos y cuantos Inactivos.
 // ------------------------------------------------------------
-function calcularEstudiantesPorEstado() {
-  const activos = listaEstudiantes.filter(function (estudiante) {
+function calcularEstudiantesPorEstado(estudiantes) {
+  const activos = estudiantes.filter(function (estudiante) {
     return estudiante.estado === "Activo";
   }).length;
 
-  const inactivos = listaEstudiantes.length - activos;
+  const inactivos = estudiantes.length - activos;
 
   return [
     { nombre: "Activos", cantidad: activos },
     { nombre: "Inactivos", cantidad: inactivos }
   ];
+}
+
+
+function llenarFiltroEstudianteDashboard() {
+  const select = document.getElementById("select-filtro-estudiante-dashboard");
+  select.innerHTML = '<option value="">Todos los estudiantes</option>';
+
+  listaEstudiantes.forEach(function (estudiante) {
+    const opcion = document.createElement("option");
+    opcion.value = estudiante.id;
+    opcion.textContent = estudiante.nombres + " " + estudiante.apellidos;
+    select.appendChild(opcion);
+  });
 }
 
 
@@ -152,14 +165,25 @@ function dibujarLeyenda(idContenedor, datos, colores) {
 // un estudiante o una novedad).
 // ------------------------------------------------------------
 function actualizarDashboard() {
-  const porGrado = calcularEstudiantesPorGrado();
-  const porTipo = calcularNovedadesPorTipo();
-  const porEstado = calcularEstudiantesPorEstado();
+  const estudianteId = document.getElementById("select-filtro-estudiante-dashboard").value;
+  const estudiantesFiltrados = estudianteId
+    ? listaEstudiantes.filter(function (estudiante) {
+      return String(estudiante.id) === estudianteId;
+    })
+    : listaEstudiantes;
+  const novedadesFiltradas = estudianteId
+    ? listaNovedades.filter(function (novedad) {
+      return String(novedad.estudiante_id) === estudianteId;
+    })
+    : listaNovedades;
+  const porGrado = calcularEstudiantesPorGrado(estudiantesFiltrados);
+  const porTipo = calcularNovedadesPorTipo(novedadesFiltradas);
+  const porEstado = calcularEstudiantesPorEstado(estudiantesFiltrados);
 
   // Tarjetas de totales.
-  document.getElementById("dashboard-total-estudiantes").textContent = listaEstudiantes.length;
+  document.getElementById("dashboard-total-estudiantes").textContent = estudiantesFiltrados.length;
   document.getElementById("dashboard-estudiantes-activos").textContent = porEstado[0].cantidad;
-  document.getElementById("dashboard-total-novedades").textContent = listaNovedades.length;
+  document.getElementById("dashboard-total-novedades").textContent = novedadesFiltradas.length;
 
   const tipoMasComun = porTipo.slice().sort(function (a, b) {
     return b.cantidad - a.cantidad;
