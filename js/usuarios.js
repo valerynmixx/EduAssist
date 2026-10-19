@@ -2,7 +2,7 @@
 // ARCHIVO: usuarios.js
 // PARA QUE SIRVE:
 //   Contiene el CRUD de la pantalla "Usuarios", donde el admin
-//   puede crear y eliminar cuentas de profesor y acudiente.
+//   puede crear y eliminar cuentas de profesor, acudiente y vigilante.
 //   Solo el admin ve esta seccion (ver auth.js).
 // ============================================================
 

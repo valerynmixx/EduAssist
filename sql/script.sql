@@ -87,16 +87,17 @@ create table novedades (
 -- TABLA: usuarios
 -- Guarda las cuentas que pueden iniciar sesion. El rol define
 -- que puede hacer cada quien dentro de la aplicacion:
---   - admin:      puede crear cuentas de profesor y acudiente.
+--   - admin:      puede crear cuentas de profesor, acudiente y vigilante.
 --   - profesor:   solo puede registrar novedades tipo "Permiso".
 --   - acudiente:  solo puede registrar "Incapacidad" y "Cita Medica".
+--   - vigilante:  solo consulta informacion y no crea ni edita registros.
 -- ------------------------------------------------------------
 create table usuarios (
   id serial primary key,
   nombre text not null,                 -- nombre para mostrar en pantalla
   usuario text not null unique,          -- con que texto inicia sesion (no se repite)
   clave text not null,                   -- contraseña (en texto plano, ver nota abajo)
-  rol text not null check (rol in ('admin', 'profesor', 'acudiente'))
+  rol text not null check (rol in ('admin', 'profesor', 'acudiente', 'vigilante'))
 );
 
 -- Conecta cada estudiante con la cuenta de acudiente (usuario
@@ -143,7 +144,8 @@ insert into tipos_novedad (nombre) values
 insert into usuarios (nombre, usuario, clave, rol) values
   ('Administrador', 'admin', 'admin123', 'admin'),
   ('Profesor', 'profesor', 'profesor123', 'profesor'),
-  ('Acudiente', 'acudiente', 'acudiente123', 'acudiente');
+  ('Acudiente', 'acudiente', 'acudiente123', 'acudiente'),
+  ('Vigilante', 'vigilante', 'vigilante123', 'vigilante');
 
 
 -- ============================================================

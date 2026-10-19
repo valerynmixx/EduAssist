@@ -229,7 +229,10 @@ function mostrarNovedadesEnTabla(novedades) {
     const celdaAcciones = document.createElement("td");
     const grupoAcciones = document.createElement("div");
     grupoAcciones.className = "acciones-novedad";
-    if (usuarioActual.rol === "profesor" && estado === "Pendiente") {
+
+    if (usuarioActual.rol === "vigilante") {
+      celdaAcciones.textContent = "-";
+    } else if (usuarioActual.rol === "profesor" && estado === "Pendiente") {
       const botonAceptar = document.createElement("button");
       botonAceptar.type = "button";
       botonAceptar.className = "boton-accion";

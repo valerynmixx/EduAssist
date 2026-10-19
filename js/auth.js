@@ -1,14 +1,15 @@
 // ============================================================
 // ARCHIVO: auth.js
 // PARA QUE SIRVE:
-//   Maneja el inicio de sesion de la aplicacion. Hay tres roles:
-//   - admin:      puede crear cuentas de profesor y acudiente
+//   Maneja el inicio de sesion de la aplicacion. Hay cuatro roles:
+//   - admin:      puede crear cuentas de profesor, acudiente y vigilante
 //                 (pantalla "Usuarios").
 //   - profesor:   solo puede registrar novedades tipo "Permiso".
 //   - acudiente:  solo puede registrar "Incapacidad" y "Cita Medica".
+//   - vigilante:  solo consulta informacion, sin crear ni editar nada.
 //
 //   Las cuentas viven en la tabla "usuarios" de Supabase (ver
-//   sql/migracion_usuarios.sql), no aqui en el codigo.
+//   sql/script.sql), no aqui en el codigo.
 //
 //   IMPORTANTE: este login es solo de INTERFAZ, pensado para un
 //   proyecto educativo. Las contraseñas se comparan en texto
@@ -23,7 +24,8 @@
 // aparece aqui: se revisa aparte (puede registrar cualquiera).
 const TIPOS_PERMITIDOS_POR_ROL = {
   profesor: ["Permiso"],
-  acudiente: ["Incapacidad", "Cita Medica"]
+  acudiente: ["Incapacidad", "Cita Medica"],
+  vigilante: []
 };
 
 // Aqui guardamos el usuario que inicio sesion (o null si nadie
@@ -142,12 +144,19 @@ function aplicarVisibilidadPorRol() {
   ];
 
   itemsSoloParaOtrosRoles.forEach(function (item) {
-    if (usuarioActual.rol === "acudiente") {
+    if (usuarioActual.rol === "acudiente" || usuarioActual.rol === "vigilante") {
       item.classList.add("oculto");
     } else {
       item.classList.remove("oculto");
     }
   });
+
+  if (usuarioActual.rol === "vigilante") {
+    document.getElementById("item-menu-novedades").classList.remove("oculto");
+    document.getElementById("boton-nuevo-estudiante").classList.add("oculto");
+    document.getElementById("item-menu-usuarios").classList.add("oculto");
+    document.getElementById("enlace-novedades").click();
+  }
 }
 
 
@@ -177,6 +186,14 @@ function restringirSelectTipoNovedadPorRol() {
       opcion.remove();
     }
   });
+
+  if (usuarioActual.rol === "vigilante") {
+    Array.from(select.options).forEach(function (opcion) {
+      if (opcion.value !== "") {
+        opcion.remove();
+      }
+    });
+  }
 }
 
 
@@ -253,6 +270,10 @@ function filtrarNovedadesPorRol(novedades) {
 function verificarTipoNovedadPermitido(tipoId) {
   if (usuarioActual.rol === "admin") {
     return true;
+  }
+
+  if (usuarioActual.rol === "vigilante") {
+    return false;
   }
 
   const tipo = listaTiposNovedad.find(function (t) {

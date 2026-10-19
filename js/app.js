@@ -72,6 +72,11 @@ function cancelarFormularioEstudiante() {
 // pantalla, listo para registrar una novedad nueva.
 // ------------------------------------------------------------
 function mostrarFormularioNuevaNovedad() {
+  if (usuarioActual.rol === "vigilante") {
+    alert("El rol de vigilante solo permite consultar información y no crear novedades.");
+    return;
+  }
+
   limpiarFormularioNovedad();
   document.getElementById("form-novedad").classList.remove("oculto");
 }
@@ -162,10 +167,13 @@ async function iniciarAplicacion() {
   actualizarContadoresInicio();
   actualizarDashboard();
 
-  // 5. Mostramos la primera pantalla al abrir la aplicacion. El
-  // acudiente no tiene acceso a "Inicio" (solo ve Novedades), asi
-  // que a el lo mandamos directo a Novedades.
-  const seccionInicial = usuarioActual.rol === "acudiente" ? "novedades" : "inicio";
+  // 5. Mostramos la primera pantalla al abrir la aplicacion.
+  // El acudiente y el vigilante entran directamente a la vista de
+  // novedades para consultar información sin necesidad de pasar por
+  // la pantalla de inicio.
+  const seccionInicial = usuarioActual.rol === "acudiente" || usuarioActual.rol === "vigilante"
+    ? "novedades"
+    : "inicio";
   mostrarSeccion(seccionInicial);
 }
 
